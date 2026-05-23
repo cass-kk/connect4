@@ -1,0 +1,13 @@
+version: "3"
+services:
+  anvil-uplink:
+    # if something fails or the server is restarted, the container will restart
+    restart: always 
+    container_name: anvil-uplink
+    image: my-anvil-app
+    network_mode: "host"
+    volumes:
+      - .:/app_data
+    build: 
+      # build the image from the Dockerfile in the current directory
+      context: .

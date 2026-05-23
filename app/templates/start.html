@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }} — choose opponent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="header">
+        <h1>{{ title }}</h1>
+        <p class="tagline">
+          Play Connect Four against trained networks. Pick a model and who moves
+          first, then continue to the game board.
+        </p>
+      </header>
+
+      {% with msgs = get_flashed_messages() %}
+        {% if msgs %}
+          <div class="flash-wrap" role="alert">
+            {% for m in msgs %}
+              <p class="flash">{{ m }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <section class="panel setup">
+        <h2 class="h2">New game</h2>
+        <form method="post" action="{{ url_for('gui.start_game') }}" class="form-stack">
+          <fieldset class="fieldset">
+            <legend class="legend">Opponent model</legend>
+            {% set ns = namespace(checked=false) %}
+            {% for key, label in models %}
+              <label class="radio-row">
+                <input
+                  type="radio"
+                  name="model"
+                  value="{{ key }}"
+                  {% if model_availability[key] and not ns.checked %}
+                    checked
+                    {% set ns.checked = true %}
+                  {% elif not model_availability[key] %}
+                    disabled
+                  {% endif %}
+                />
+                <span>{{ label }}{% if not model_availability[key] %} — not loaded{% endif %}</span>
+              </label>
+            {% endfor %}
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="legend">Who goes first?</legend>
+            <p class="explain small">
+              Red always opens standard Connect Four. You play one color and the model plays the other.
+            </p>
+            <label class="radio-row">
+              <input type="radio" name="first_player" value="human" checked />
+              <span>Human goes first (Human-Red, Model-Yellow)</span>
+            </label>
+            <label class="radio-row">
+              <input type="radio" name="first_player" value="model" />
+              <span>Model goes first (Human-Yellow, Model-Red)</span>
+            </label>
+          </fieldset>
+
+          <button type="submit" class="primary" {% if not any_model_loaded %}disabled{% endif %}>
+            Start game
+          </button>
+        </form>
+      </section>
+
+      <p class="footnote">
+        2026.
+      </p>
+    </div>
+  </body>
+</html>

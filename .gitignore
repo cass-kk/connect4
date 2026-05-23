@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+app/.venv/
+
+# Supervised training datasets (supervised_learning_with_AWS_Docker/data/)
+data/
+
+# Model weights elsewhere in the repo (committed checkpoints live in app/models/)
+*.pt
+*.keras
+*.h5
+!app/models/*.pt
+!app/models/*.keras
+!app/models/*.h5
+
+# OS / notebooks
+.DS_Store
+.ipynb_checkpoints/

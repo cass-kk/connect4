@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }} — vs {{ model_label }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body class="game-page">
+    <div class="wrap wrap-game">
+      <div class="game-top">
+        <header class="header game-header">
+          <h1>vs {{ model_label }}</h1>
+          <p class="tagline">
+            You: <strong class="chip-you">{{ your_color }}</strong> ·
+            Model: <strong class="chip-ai">{{ ai_color }}</strong>
+          </p>
+        </header>
+        <aside class="game-hud" aria-label="Game status">
+          <p class="hud-moves">
+            Moves <strong>{{ move_count }}</strong>
+          </p>
+          {% if status_kind == "over" %}
+            <p class="hud-status">{{ status_message }}</p>
+          {% else %}
+            <p class="hud-turn">{{ turn_hint or " " }}</p>
+          {% endif %}
+        </aside>
+      </div>
+
+      <div class="flash-slot" role="alert" aria-live="polite">
+        {% with msgs = get_flashed_messages() %}
+          {% if msgs %}
+            {% for m in msgs %}
+              <p class="flash">{{ m }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <main class="game-main" id="board">
+        <div class="board-wrap">
+          <div class="board" aria-label="Connect 4 board">
+            <div class="column-buttons">
+              {% if can_play %}
+                {% for c in columns %}
+                  <form method="post" action="{{ url_for('gui.play_move') }}" class="col-form">
+                    <input type="hidden" name="column" value="{{ c }}" />
+                    <button type="submit" class="col-btn" title="Play column {{ c }}">{{ c }}</button>
+                  </form>
+                {% endfor %}
+              {% else %}
+                {% for c in columns %}
+                  <span class="col-placeholder">{{ c }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="cells">
+              {% for row in board %}
+                {% set row_idx = loop.index0 %}
+                {% for cell in row %}
+                  {% set col_idx = loop.index0 %}
+                  {% set is_last_move = last_move_row is not none and last_move_row == row_idx and last_move_col == col_idx %}
+                  <div
+                    class="cell{% if cell == 1 %} p1{% elif cell == -1 %} p2{% endif %}{% if is_last_move %} last-move{% if last_move_by_model %} last-move-model{% endif %}{% endif %}"
+                  ></div>
+                {% endfor %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <p class="footnote legend-foot">
+          <span class="legend-dot p1"></span> Red &nbsp;
+          <span class="legend-dot p2"></span> Yellow · row 0 is top
+        </p>
+      </main>
+    </div>
+
+    <footer class="game-dock">
+      <div class="game-dock-inner">
+        <form method="post" action="{{ url_for('gui.change_model') }}" class="inline-form">
+          <button type="submit" class="secondary">Choose different model</button>
+        </form>
+        <form method="post" action="{{ url_for('gui.replay') }}" class="inline-form">
+          <button type="submit" class="primary">Play again (same model)</button>
+        </form>
+      </div>
+    </footer>
+
+    <script>
+      if (location.hash === "#board") {
+        const board = document.getElementById("board");
+        if (board) {
+          board.scrollIntoView({ block: "center" });
+        }
+      }
+    </script>
+  </body>
+</html>
